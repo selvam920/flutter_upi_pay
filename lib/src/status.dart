@@ -28,7 +28,7 @@ class UpiApplicationStatus {
   );
   static final UpiApplicationStatus bhim = UpiApplicationStatus(
     androidStatus: _androidStatusRiskThresholdExceeded,
-    iosStatus: _iosStatusUpiSupportedNoUpiScheme,
+    iosStatus: _iosStatusWorks,
   );
   static final UpiApplicationStatus miPay = UpiApplicationStatus(
     androidStatus: _androidStatusNoReturn,
@@ -200,7 +200,7 @@ class UpiApplicationStatus {
   );
   static final UpiApplicationStatus cred = UpiApplicationStatus(
     androidStatus: _androidStatusRiskThresholdExceeded,
-    iosStatus: _iosStatusUpiSupportedNoUpiScheme,
+    iosStatus: _iosStatusWorks,
   );
   static final UpiApplicationStatus cubMBankPlus = UpiApplicationStatus(
     androidStatus: _androidStatusUpiSupportedNoIntent,

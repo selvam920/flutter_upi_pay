@@ -52,6 +52,24 @@ class UpiPay {
   /// [UPI Linking Specification](https://www.npci.org.in/sites/default/files/UPI%20Linking%20Specs_ver%201.6.pdf).
   ///
   /// [url]: See `url` parameter in [UPI Linking Specification](https://www.npci.org.in/sites/default/files/UPI%20Linking%20Specs_ver%201.6.pdf)
+  ///
+  /// [isForMandate] switches the request to use the `upi://mandate` authority.
+  ///
+  /// Mandate-specific parameters:
+  /// [amountRule] - Amount rule (MAX, EXACT, etc.)
+  /// [blockFlag] - Block flag (Y/N)
+  /// [merchantName] - Merchant name or identifier
+  /// [mode] - Payment mode
+  /// [orgId] - Organization ID
+  /// [purpose] - Payment purpose code
+  /// [recurrence] - Recurrence pattern (ASPRESENTED, MONTHLY, etc.)
+  /// [recurrenceType] - Recurrence type (AFTER, BEFORE, etc.)
+  /// [recurrenceValue] - Recurrence value/count
+  /// [revocable] - Revocable flag (Y/N)
+  /// [transactionId] - Transaction ID
+  /// [txnType] - Transaction type (CREATE, REVOKE, etc.)
+  /// [validityStart] - Validity start date (DDMMYYYY)
+  /// [validityEnd] - Validity end date (DDMMYYYY)
   static Future<UpiTransactionResponse> initiateTransaction({
     required UpiApplication app,
     required String receiverUpiAddress,
@@ -61,6 +79,21 @@ class UpiPay {
     String? url,
     String? merchantCode,
     String? transactionNote,
+    bool isForMandate = false,
+    String? amountRule,
+    String? blockFlag,
+    String? merchantName,
+    String? mode,
+    String? orgId,
+    String? purpose,
+    String? recurrence,
+    String? recurrenceType,
+    String? recurrenceValue,
+    String? revocable,
+    String? transactionId,
+    String? txnType,
+    String? validityStart,
+    String? validityEnd,
   }) async {
     final transactionDetails = TransactionDetails(
       upiApplication: app,
@@ -71,6 +104,21 @@ class UpiPay {
       url: url,
       merchantCode: merchantCode,
       transactionNote: transactionNote,
+      isForMandate: isForMandate,
+      amountRule: amountRule,
+      blockFlag: blockFlag,
+      merchantName: merchantName,
+      mode: mode,
+      orgId: orgId,
+      purpose: purpose,
+      recurrence: recurrence,
+      recurrenceType: recurrenceType,
+      recurrenceValue: recurrenceValue,
+      revocable: revocable,
+      transactionId: transactionId,
+      txnType: txnType,
+      validityStart: validityStart,
+      validityEnd: validityEnd,
     );
     return await _transactionHelper.transact(_channel, transactionDetails);
   }
@@ -94,11 +142,15 @@ class UpiPay {
   ///
   /// [paymentType] must be [UpiApplicationDiscoveryAppPaymentType.nonMerchant]
   /// for now. Setting it to any other value will lead to [UnsupportedError].
+  ///
+  /// [isForMandateApps] filters apps that advertise UPI mandate support where
+  /// platform discovery supports it.
   static Future<List<ApplicationMeta>> getInstalledUpiApplications({
     UpiApplicationDiscoveryAppPaymentType paymentType =
         UpiApplicationDiscoveryAppPaymentType.nonMerchant,
     UpiApplicationDiscoveryAppStatusType statusType =
         UpiApplicationDiscoveryAppStatusType.working,
+    bool isForMandateApps = false,
   }) async {
     if (paymentType != UpiApplicationDiscoveryAppPaymentType.nonMerchant) {
       throw UnsupportedError('The parameter `paymentType` must be '
@@ -112,6 +164,7 @@ class UpiPay {
       applicationStatusMap: _upiApplicationStatuses,
       paymentType: paymentType,
       statusType: statusType,
+      isForMandateApps: isForMandateApps,
     );
   }
 

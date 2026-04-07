@@ -26,6 +26,7 @@ class UpiApplicationDiscovery implements _PlatformDiscoveryBase {
         UpiApplicationDiscoveryAppPaymentType.nonMerchant,
     UpiApplicationDiscoveryAppStatusType statusType =
         UpiApplicationDiscoveryAppStatusType.working,
+    bool isForMandateApps = false,
   }) async {
     if (io.Platform.isAndroid || io.Platform.isIOS) {
       return await discovery!.discover(
@@ -33,6 +34,7 @@ class UpiApplicationDiscovery implements _PlatformDiscoveryBase {
         applicationStatusMap: applicationStatusMap,
         paymentType: paymentType,
         statusType: statusType,
+        isForMandateApps: isForMandateApps,
       );
     }
     throw UnsupportedError('Discovery is available only on Android and iOS');
@@ -54,8 +56,11 @@ class _AndroidDiscovery implements _PlatformDiscoveryBase {
         UpiApplicationDiscoveryAppPaymentType.nonMerchant,
     UpiApplicationDiscoveryAppStatusType statusType =
         UpiApplicationDiscoveryAppStatusType.working,
+    bool isForMandateApps = false,
   }) async {
-    final appsList = await upiMethodChannel.getInstalledUpiApps();
+    final appsList = await upiMethodChannel.getInstalledUpiApps(
+      isForMandateApps: isForMandateApps,
+    );
     if (appsList == null) return [];
     final List<ApplicationMeta> retList = [];
     appsList.forEach((app) {
@@ -127,7 +132,15 @@ class _IosDiscovery implements _PlatformDiscoveryBase {
         UpiApplicationDiscoveryAppPaymentType.nonMerchant,
     UpiApplicationDiscoveryAppStatusType statusType =
         UpiApplicationDiscoveryAppStatusType.working,
+    bool isForMandateApps = false,
   }) async {
+    if (isForMandateApps) {
+      final bool? supportsMandate =
+          await upiMethodChannel.canLaunch('upi://mandate');
+      if (supportsMandate != true) {
+        return [];
+      }
+    }
     Map<String, UpiApplication> discoveryMap = {};
     List<UpiApplication> discovered = [];
     applicationStatusMap.forEach((app, status) {
@@ -156,7 +169,18 @@ class _IosDiscovery implements _PlatformDiscoveryBase {
         print(stack);
       }
     }
-    return discovered.map((app) => ApplicationMeta.ios(app)).toList();
+    if (discovered.isEmpty) return [];
+    final metas = await Future.wait(discovered.map((app) async {
+      final resolved = await _resolveIOSAppIcon(
+        appName: app.appName,
+        bundleIdHint: app.iosBundleId,
+      );
+      return ApplicationMeta.ios(
+        app,
+        iconUrl: resolved.logoUrl,
+      );
+    }));
+    return metas;
   }
 
   UpiApplicationIosStatus? _getStatus(String packageName,
@@ -195,6 +219,81 @@ class _IosDiscovery implements _PlatformDiscoveryBase {
   }
 }
 
+Future<({String? logoUrl, String? bundleId})> _resolveIOSAppIcon({
+  required String appName,
+  String? bundleIdHint,
+}) async {
+  try {
+    final hasBundleHint = bundleIdHint != null && bundleIdHint.contains('.');
+    final uri = hasBundleHint
+        ? Uri.https("itunes.apple.com", "/lookup", {
+            "bundleId": bundleIdHint,
+            "country": "in",
+          })
+        : Uri.https("itunes.apple.com", "/search", {
+            "term": appName,
+            "country": "in",
+            "entity": "software",
+            "limit": "5",
+          });
+
+    final data = await _getJson(uri);
+    if (data == null) return (logoUrl: null, bundleId: null);
+
+    if (data["resultCount"] > 0 && data["results"] is List) {
+      final results = List<Map<String, dynamic>>.from(data["results"]);
+      final targetName = _normalizeAppName(appName);
+      Map<String, dynamic>? best;
+
+      if (hasBundleHint) {
+        best = results.firstWhere(
+          (item) => item["bundleId"]?.toString() == bundleIdHint,
+          orElse: () => results.first,
+        );
+      } else {
+        best = results.firstWhere(
+          (item) =>
+              _normalizeAppName(item["trackName"]?.toString() ?? "") ==
+              targetName,
+          orElse: () => results.first,
+        );
+      }
+
+      return (
+        logoUrl: best["artworkUrl100"]?.toString() ??
+            best["artworkUrl60"]?.toString(),
+        bundleId: best["bundleId"]?.toString(),
+      );
+    }
+  } catch (error) {
+    print("Error resolving iOS app icon: $error");
+  }
+  return (logoUrl: null, bundleId: null);
+}
+
+Future<Map<String, dynamic>?> _getJson(Uri uri) async {
+  final client = io.HttpClient();
+  try {
+    final request = await client.getUrl(uri);
+    final response = await request.close();
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      return null;
+    }
+    final body = await response.transform(utf8.decoder).join();
+    final decoded = jsonDecode(body);
+    if (decoded is Map<String, dynamic>) return decoded;
+  } catch (error) {
+    print("Error fetching iOS app icon metadata: $error");
+  } finally {
+    client.close(force: true);
+  }
+  return null;
+}
+
+String _normalizeAppName(String name) {
+  return name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
+}
+
 abstract class _PlatformDiscoveryBase {
   Future<List<ApplicationMeta>> discover({
     required UpiMethodChannel upiMethodChannel,
@@ -203,6 +302,7 @@ abstract class _PlatformDiscoveryBase {
         UpiApplicationDiscoveryAppPaymentType.nonMerchant,
     UpiApplicationDiscoveryAppStatusType statusType =
         UpiApplicationDiscoveryAppStatusType.working,
+    bool isForMandateApps = false,
   });
 }
 
