@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:universal_io/io.dart' as io;
 import 'package:flutter_upi_india/src/applications.dart';
 import 'package:flutter_upi_india/src/method_channel.dart';
 import 'package:flutter_upi_india/src/platform_utils.dart';

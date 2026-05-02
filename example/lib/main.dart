@@ -26,10 +26,10 @@ class Screen extends StatefulWidget {
   const Screen({super.key});
 
   @override
-  _ScreenState createState() => _ScreenState();
+  ScreenState createState() => ScreenState();
 }
 
-class _ScreenState extends State<Screen> {
+class ScreenState extends State<Screen> {
   String? _upiAddrError;
 
   final _upiAddressController = TextEditingController();
