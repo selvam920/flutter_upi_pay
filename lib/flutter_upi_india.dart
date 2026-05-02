@@ -7,3 +7,4 @@ export 'package:flutter_upi_india/src/discovery.dart'
     show
         UpiApplicationDiscoveryAppStatusType,
         UpiApplicationDiscoveryAppPaymentType;
+export 'package:flutter_upi_india/src/platform_utils.dart' show UpiPlatform;

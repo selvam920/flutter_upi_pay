@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:universal_io/io.dart' as io;
 import 'package:flutter_upi_india/src/applications.dart';
 import 'package:flutter_upi_india/src/method_channel.dart';
+import 'package:flutter_upi_india/src/platform_utils.dart';
 import 'package:flutter_upi_india/src/status.dart';
 import 'package:flutter_upi_india/src/meta.dart';
 
 class UpiApplicationDiscovery implements _PlatformDiscoveryBase {
-  final discovery = io.Platform.isAndroid
+  final discovery = UpiPlatform.isAndroid
       ? _AndroidDiscovery()
-      : io.Platform.isIOS
+      : UpiPlatform.isIOS
           ? _IosDiscovery()
           : null;
   static final _singleton = UpiApplicationDiscovery._inner();
@@ -28,7 +28,7 @@ class UpiApplicationDiscovery implements _PlatformDiscoveryBase {
         UpiApplicationDiscoveryAppStatusType.working,
     bool isForMandateApps = false,
   }) async {
-    if (io.Platform.isAndroid || io.Platform.isIOS) {
+    if (UpiPlatform.isAndroid || UpiPlatform.isIOS) {
       return await discovery!.discover(
         upiMethodChannel: upiMethodChannel,
         applicationStatusMap: applicationStatusMap,

@@ -1,4 +1,4 @@
-import 'package:universal_io/io.dart' as io;
+import 'package:flutter_upi_india/src/platform_utils.dart';
 
 /// Represents a UPI payment application.
 ///
@@ -30,7 +30,7 @@ class UpiApplication {
     required this.appName,
     this.discoveryCustomScheme,
   }) {
-    if (io.Platform.isAndroid) {
+    if (UpiPlatform.isAndroid) {
       lookUpMap[this.androidPackageName] = this;
     } else if (this.iosBundleId != null) {
       lookUpMap[this.iosBundleId!] = this;
@@ -567,7 +567,7 @@ class UpiApplication {
 
   /// Returns the platform-specific package name.
   String toString() {
-    return io.Platform.isAndroid ? androidPackageName : iosBundleId!;
+    return UpiPlatform.isAndroid ? androidPackageName : iosBundleId!;
   }
 
   /// Returns app's name.

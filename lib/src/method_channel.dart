@@ -1,5 +1,5 @@
-import 'package:universal_io/io.dart' as io;
 import 'package:flutter/services.dart';
+import 'package:flutter_upi_india/src/platform_utils.dart';
 import 'package:flutter_upi_india/src/transaction_details.dart';
 
 class UpiMethodChannel {
@@ -12,7 +12,7 @@ class UpiMethodChannel {
 
   Future<String?> initiateTransaction(
       TransactionDetails transactionDetails) async {
-    if (io.Platform.isAndroid) {
+    if (UpiPlatform.isAndroid) {
       return await _channel.invokeMethod<String>(
           'initiateTransaction', transactionDetails.toJson());
     }
@@ -21,7 +21,7 @@ class UpiMethodChannel {
   }
 
   Future<bool?> launch(TransactionDetails transactionDetails) async {
-    if (io.Platform.isIOS) {
+    if (UpiPlatform.isIOS) {
       return await _channel
           .invokeMethod<bool>('launch', {'uri': transactionDetails.toString()});
     }
@@ -31,7 +31,7 @@ class UpiMethodChannel {
   Future<List<Map<dynamic, dynamic>>?> getInstalledUpiApps({
     bool isForMandateApps = false,
   }) async {
-    if (io.Platform.isAndroid) {
+    if (UpiPlatform.isAndroid) {
       return await _channel
           .invokeListMethod<Map<dynamic, dynamic>>('getInstalledUpiApps', {
         'isForMandateApps': isForMandateApps,
@@ -42,7 +42,7 @@ class UpiMethodChannel {
   }
 
   Future<bool?> canLaunch(String uriOrScheme) async {
-    if (io.Platform.isIOS) {
+    if (UpiPlatform.isIOS) {
       final uri = uriOrScheme.contains('://')
           ? uriOrScheme
           : uriOrScheme + '://';

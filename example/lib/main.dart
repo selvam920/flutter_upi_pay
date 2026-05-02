@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -104,8 +103,8 @@ class _ScreenState extends State<Screen> {
           _vpa(),
           if (_upiAddrError != null) _vpaError(),
           _amount(),
-          if (Platform.isIOS) _submitButton(),
-          Platform.isAndroid ? _androidApps() : _iosApps(),
+          if (UpiPlatform.isWindows) _submitButton(),
+          UpiPlatform.isWindows ? _androidApps() : _iosApps(),
         ],
       ),
     );
@@ -299,7 +298,7 @@ class _ScreenState extends State<Screen> {
               key: ObjectKey(it.upiApplication),
               // color: Colors.grey[200],
               child: InkWell(
-                onTap: Platform.isAndroid ? () async => await _onTap(it) : null,
+                onTap: UpiPlatform.isWindows ? () async => await _onTap(it) : null,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
