@@ -1,8 +1,14 @@
 group 'com.trident.flutter_upi_india'
 version '1.0-SNAPSHOT'
 
+// No longer declares its own Kotlin Gradle Plugin version/classpath here —
+// the consuming app centrally pins org.jetbrains.kotlin.android in its own
+// settings.gradle.kts, which wins over whatever this module's buildscript
+// says anyway. Keeping a separate declaration here just meant this module
+// silently ran a different KGP version than what actually got applied — a
+// declared-vs-applied mismatch that's a known source of build inconsistency
+// (see flutter/flutter#179253 for the same shape of bug).
 buildscript {
-    ext.kotlin_version = '1.9.24'
     repositories {
         google()
         mavenCentral()
@@ -10,7 +16,6 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.5.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -28,7 +33,7 @@ android {
     if (project.android.hasProperty('namespace')) {
         namespace 'com.trident.flutter_upi_india'
     }
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         minSdk 24
@@ -40,10 +45,6 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
     buildFeatures {
         buildConfig true
     }
@@ -53,6 +54,22 @@ android {
     }
 }
 
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
+
+// Defense-in-depth against a confirmed Gradle bug (gradle/gradle#11316) where
+// restoring a KotlinCompile task's output from the build cache can desync
+// the compiler's incremental state from what's actually on disk, producing
+// an empty/corrupted output that then gets cached and silently reused by
+// every other project sharing this GRADLE_USER_HOME. This module is tiny, so
+// losing cacheability here costs a few seconds, not build-time regressions.
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    outputs.cacheIf { false }
+}
+
+// kotlin-stdlib is added automatically by the Kotlin Android Gradle Plugin at
+// whatever version it resolves to — no need (and no longer possible, since
+// kotlin_version isn't declared here anymore) to pin it manually.
