@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_upi_india/src/applications.dart';
 import 'package:flutter_upi_india/src/platform_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Represents a UPI payment app and more relevant information.
 ///
