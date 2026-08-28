@@ -32,6 +32,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cupertino_ui",
+      "rootUri": "file:///E:/dev/pub/hosted/pub.dev/cupertino_ui-1.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.12"
+    },
+    {
       "name": "decimal",
       "rootUri": "file:///E:/dev/pub/hosted/pub.dev/decimal-3.2.6",
       "packageUri": "lib/",
@@ -46,6 +52,12 @@
     {
       "name": "flutter",
       "rootUri": "file:///E:/dev/flutter/packages/flutter",
+      "packageUri": "lib/",
+      "languageVersion": "3.11"
+    },
+    {
+      "name": "flutter_localizations",
+      "rootUri": "file:///E:/dev/flutter/packages/flutter_localizations",
       "packageUri": "lib/",
       "languageVersion": "3.11"
     },
@@ -90,6 +102,12 @@
       "rootUri": "file:///E:/dev/pub/hosted/pub.dev/material_color_utilities-0.13.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "material_ui",
+      "rootUri": "file:///E:/dev/pub/hosted/pub.dev/material_ui-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.12"
     },
     {
       "name": "meta",
@@ -183,8 +201,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.13.1",
+  "generatorVersion": "3.13.2",
   "flutterRoot": "file:///E:/dev/flutter",
-  "flutterVersion": "3.47.1",
+  "flutterVersion": "3.47.2",
   "pubCache": "file:///E:/dev/pub"
 }

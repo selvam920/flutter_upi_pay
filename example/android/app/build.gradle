@@ -7,18 +7,15 @@ plugins {
 
 android {
     namespace = "com.trident.flutter_upi_india_example"
-    compileSdk = 35
+    compileSdk = 37
     ndkVersion = "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
+    
     defaultConfig {
         applicationId = "com.trident.flutter_upi_india_example"
         minSdk = 24
@@ -36,4 +33,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
